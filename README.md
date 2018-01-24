@@ -1,2 +1,2 @@
 # DotSys
-System for keeping track of dots.
+System for keeping track of dots. Yeah.

@@ -20,195 +20,194 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 
 public class DotSystemController {
-	
+
 	String username; 
 	Person person = null;
-	
-	
+
+
 	@FXML
 	ComboBox<Person> comboBox;
-		
-	
+
+
 	@FXML
 	static
 	ObservableList<Person> list = FXCollections.observableArrayList();
-	
-    @FXML
-    private Button candy;
 
-    @FXML
-    private Button cake;
+	@FXML
+	private Button candy;
 
-    @FXML
-    private Button missed;
+	@FXML
+	private Button cake;
 
-    @FXML
-    private Button unprepared;
+	@FXML
+	private Button missed;
 
-    @FXML
-    private TextField late;
+	@FXML
+	private Button unprepared;
 
-    @FXML
-    private Button lateButton;
+	@FXML
+	private TextField late;
 
-    @FXML
-    private Button add;
+	@FXML
+	private Button lateButton;
 
-    @FXML
-    private TextField user;
+	@FXML
+	private Button add;
 
-    @FXML
-    private Label dots;
-    
-    @FXML
-    private Label error;
-    
-    
-    public void initialize() {
-    	comboBox.setItems(list.sorted());
-    }
-    
-   
-    @FXML
-    void addPerson() {
-    		username = user.getText().substring(0, 1).toUpperCase() + user.getText().substring(1).toLowerCase();
-    		Person p = new Person(username);
-    		setPerson(p);
-    		System.out.println("Person:" + getPerson());
-    		System.out.println();
-    		list.addAll(getPerson());
-    		updateLabel();
-    		user.clear();
-    }
-    
-    
-    public Person getPerson() {
+	@FXML
+	private TextField user;
+
+	@FXML
+	private Label dots;
+
+	@FXML
+	private Label error;
+
+
+	public void initialize() {
+		comboBox.setItems(list.sorted());
+	}
+
+
+	@FXML
+	void addPerson() {
+		username = user.getText().substring(0, 1).toUpperCase() + user.getText().substring(1).toLowerCase();
+		Person p = new Person(username);
+		setPerson(p);
+		System.out.println("Person:" + getPerson());
+		System.out.println();
+		list.addAll(getPerson());
+		updateLabel();
+		user.clear();
+	}
+
+
+	public Person getPerson() {
 		return person;
 	}
-    
-    void setPerson(Person person) {
-    		this.person = person;
-    }
-    
-    public String dots(Person p) {
+
+	void setPerson(Person person) {
+		this.person = person;
+	}
+
+	public String dots(Person p) {
 		return p.getName() + " har " + p.getDots() + " prikker.";
 	}
-   
-    public void checkPerson() {
-    		setPerson(comboBox.getValue());
-    		updateLabel();
-    }
-    
-    public Boolean isValidPerson(Person p) {
-    		if (p == null) {
-    			return false;
-    		} else {
-    			return true;
-    		}
-    }
-    public void missedLecture(){
-    		if (!isValidPerson(person)) {
-    			setError("Velg en person først");
-        } else {
-        		person.addDots(2);
-    			updateLabel();
-        }
-    		
-		
+
+	public void checkPerson() {
+		setPerson(comboBox.getValue());
+		updateLabel();
 	}
-	
+
+	public Boolean isValidPerson(Person p) {
+		if (p == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public void missedLecture(){
+		if (!isValidPerson(person)) {
+			setError("Velg en person først");
+		} else {
+			person.addDots(2);
+			updateLabel();
+		}
+	}
+
 	public void broughtCandy() {
 		if (!isValidPerson(person)) {
 			setError("Velg en person først");
-    } else {
-		person.addDots(-1);
-		updateLabel();
-    }
+		} else {
+			person.addDots(-1);
+			updateLabel();
+		}
 	}
-	
+
 	public void broughtCake() {
 		if (!isValidPerson(person)) {
 			setError("Velg en person først");
-    } else {
-		person.addDots(-4);
-		updateLabel();
-    		}
+		} else {
+			person.addDots(-4);
+			updateLabel();
+		}
 	}
-	
+
 	public void unprepared() {
 		if (!isValidPerson(person)) {
 			setError("Velg en person først");
-    } else {
-		person.addDots(1);
-		updateLabel();
+		} else {
+			person.addDots(1);
+			updateLabel();
 		}
 	} 
-	
+
 	public void late() {
 		if (!isValidPerson(person)) {
 			setError("Velg en person først");
-    } else {
-    		if (late.getText().isEmpty()) {
-    			setError("Skriv inn antall minutter forsein");
-    		} else {
-    			int minutes = Integer.parseInt(late.getText());
-    			if (minutes >= 30) {
-    				person.addDots(6);
-    				updateLabel();
-    				late.clear();
-    			} else if (minutes < 30){
-    				person.addDots(Math.floorDiv(minutes,5));
-    				updateLabel();
-    				late.clear();
-    			} 
-    		}
-		
+		} else {
+			if (late.getText().isEmpty()) {
+				setError("Skriv inn antall minutter forsein");
+			} else {
+				int minutes = Integer.parseInt(late.getText());
+				if (minutes >= 30) {
+					person.addDots(6);
+					updateLabel();
+					late.clear();
+				} else if (minutes < 30){
+					person.addDots(Math.floorDiv(minutes,5));
+					updateLabel();
+					late.clear();
+				} 
+			}
+
+		}
 	}
-	}
-	
+
 	public void updateLabel() {
 		error.setText("");
 		dots.setText(dots(getPerson()));
 	}
-	
+
 	public void setError(String description) throws IllegalArgumentException{
 		error.setText(description);
 		throw new IllegalArgumentException(description);
 	}
-	
+
 	public void load() {
 		FileChooser chooser = new FileChooser();
-	    chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
-	    
+		chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
+
 		File file = chooser.showOpenDialog(null);
-        if (file != null) {
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
-            	List<Person> importedPersons = new ArrayList<>();
-            	Object readObj = in.readObject();
-            	// Validate instance type of read object
-            	if (!(readObj instanceof List<?>)) {
-            		throw new Exception("Unrecognizeable object in savefile, expected List<?> but was "
-            				+ readObj.getClass().getSimpleName());
-            	}
-            	List<?> readList = (List<?>) readObj;
-            	for (Object o : readList) {
-            		// Validate instance type of object in read list
-            		if (!(o instanceof Person)) {
-            			System.err.println("Unknown object in imported list, expected Person but was "
-            					+ o.getClass().getSimpleName());
-            			continue;
-            		}
-            		Person p = (Person) o;
-            		importedPersons.add(p);
-            	}
-            	list.setAll(importedPersons);
-            	System.out.println("Loaded: "+list);
-            } catch (Exception exc) {
-                exc.printStackTrace();
-            }
-        }
+		if (file != null) {
+			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+				List<Person> importedPersons = new ArrayList<>();
+				Object readObj = in.readObject();
+				// Validate instance type of read object
+				if (!(readObj instanceof List<?>)) {
+					throw new Exception("Unrecognizeable object in savefile, expected List<?> but was "
+							+ readObj.getClass().getSimpleName());
+				}
+				List<?> readList = (List<?>) readObj;
+				for (Object o : readList) {
+					// Validate instance type of object in read list
+					if (!(o instanceof Person)) {
+						System.err.println("Unknown object in imported list, expected Person but was "
+								+ o.getClass().getSimpleName());
+						continue;
+					}
+					Person p = (Person) o;
+					importedPersons.add(p);
+				}
+				list.setAll(importedPersons);
+				System.out.println("Loaded: "+list);
+			} catch (Exception exc) {
+				exc.printStackTrace();
+			}
+		}
 	}
-	
+
 	public void save() {
 		FileChooser chooser = new FileChooser();
 		chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
@@ -216,17 +215,16 @@ public class DotSystemController {
 		if (file == null) return;
 		String filePath = file.getAbsolutePath();
 		if(!filePath.endsWith(".dots")) {
-		    file = new File(filePath + ".dots");
+			file = new File(filePath + ".dots");
 		}
-        if (file != null) {
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
-                System.out.println("Saved: "+list); 
-            		out.writeObject(new ArrayList<>(list));
-            } catch (Exception exc) {
-                exc.printStackTrace();
-            }
-        }
+		if (file != null) {
+			try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
+				System.out.println("Saved: "+list); 
+				out.writeObject(new ArrayList<>(list));
+			} catch (Exception exc) {
+				exc.printStackTrace();
+			}
+		}
 	}
-	
 
 }

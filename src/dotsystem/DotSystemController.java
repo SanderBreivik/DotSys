@@ -14,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -21,12 +23,10 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 public class DotSystemController {
 
-	String username; 
-	Person person = null;
-
-
+	String username;
+	
 	@FXML
-	ComboBox<Person> comboBox;
+	ListView<Person> listviewPersons;
 
 
 	@FXML
@@ -65,7 +65,13 @@ public class DotSystemController {
 
 
 	public void initialize() {
-		comboBox.setItems(list.sorted());
+		listviewPersons.setItems(list.sorted());
+		
+		// Add listener to listview
+		listviewPersons.getSelectionModel().selectedItemProperty().addListener((oldval, newval, observable) -> {
+			if (newval != null)
+				updateLabel();
+		});
 	}
 
 
@@ -73,78 +79,64 @@ public class DotSystemController {
 	void addPerson() {
 		username = user.getText().substring(0, 1).toUpperCase() + user.getText().substring(1).toLowerCase();
 		Person p = new Person(username);
-		setPerson(p);
-		System.out.println("Person:" + getPerson());
+		System.out.println("Person:" + p);
 		System.out.println();
-		list.addAll(getPerson());
+		list.add(p);
 		updateLabel();
 		user.clear();
-	}
-
-
-	public Person getPerson() {
-		return person;
-	}
-
-	void setPerson(Person person) {
-		this.person = person;
 	}
 
 	public String dots(Person p) {
 		return p.getName() + " har " + p.getDots() + " prikker.";
 	}
 
-	public void checkPerson() {
-		setPerson(comboBox.getValue());
-		updateLabel();
-	}
-
 	public Boolean isValidPerson(Person p) {
-		if (p == null) {
-			return false;
-		} else {
-			return true;
-		}
+		return p != null;
 	}
 
 	public void missedLecture(){
-		if (!isValidPerson(person)) {
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (!isValidPerson(p)) {
 			setError("Velg en person først");
 		} else {
-			person.addDots(2);
+			p.addDots(2);
 			updateLabel();
 		}
 	}
 
 	public void broughtCandy() {
-		if (!isValidPerson(person)) {
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (!isValidPerson(p)) {
 			setError("Velg en person først");
 		} else {
-			person.addDots(-1);
+			p.addDots(-1);
 			updateLabel();
 		}
 	}
 
 	public void broughtCake() {
-		if (!isValidPerson(person)) {
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (!isValidPerson(p)) {
 			setError("Velg en person først");
 		} else {
-			person.addDots(-4);
+			p.addDots(-4);
 			updateLabel();
 		}
 	}
 
 	public void unprepared() {
-		if (!isValidPerson(person)) {
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (!isValidPerson(p)) {
 			setError("Velg en person først");
 		} else {
-			person.addDots(1);
+			p.addDots(1);
 			updateLabel();
 		}
 	} 
 
 	public void late() {
-		if (!isValidPerson(person)) {
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (!isValidPerson(p)) {
 			setError("Velg en person først");
 		} else {
 			if (late.getText().isEmpty()) {
@@ -152,11 +144,11 @@ public class DotSystemController {
 			} else {
 				int minutes = Integer.parseInt(late.getText());
 				if (minutes >= 30) {
-					person.addDots(6);
+					p.addDots(6);
 					updateLabel();
 					late.clear();
 				} else if (minutes < 30){
-					person.addDots(Math.floorDiv(minutes,5));
+					p.addDots(Math.floorDiv(minutes,5));
 					updateLabel();
 					late.clear();
 				} 
@@ -167,11 +159,17 @@ public class DotSystemController {
 
 	public void updateLabel() {
 		error.setText("");
-		dots.setText(dots(getPerson()));
+		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
+		if (p == null) {
+			dots.setText("");
+		} else {
+			dots.setText(String.valueOf(p.getDots()));
+		}
 	}
 
 	public void setError(String description) throws IllegalArgumentException{
 		error.setText(description);
+		// TODO: Shouldn't throw RuntimeException, or uncaught exception
 		throw new IllegalArgumentException(description);
 	}
 
@@ -184,14 +182,16 @@ public class DotSystemController {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 				List<Person> importedPersons = new ArrayList<>();
 				Object readObj = in.readObject();
+				
 				// Validate instance type of read object
 				if (!(readObj instanceof List<?>)) {
 					throw new Exception("Unrecognizeable object in savefile, expected List<?> but was "
 							+ readObj.getClass().getSimpleName());
 				}
+				
+				// Add imported persons, validate types
 				List<?> readList = (List<?>) readObj;
 				for (Object o : readList) {
-					// Validate instance type of object in read list
 					if (!(o instanceof Person)) {
 						System.err.println("Unknown object in imported list, expected Person but was "
 								+ o.getClass().getSimpleName());
@@ -200,7 +200,9 @@ public class DotSystemController {
 					Person p = (Person) o;
 					importedPersons.add(p);
 				}
+				
 				list.setAll(importedPersons);
+				listviewPersons.getSelectionModel().select(0);
 				System.out.println("Loaded: "+list);
 			} catch (Exception exc) {
 				exc.printStackTrace();
@@ -211,7 +213,7 @@ public class DotSystemController {
 	public void save() {
 		FileChooser chooser = new FileChooser();
 		chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
-		File file = chooser.showSaveDialog(comboBox.getScene().getWindow());
+		File file = chooser.showSaveDialog(listviewPersons.getScene().getWindow());
 		if (file == null) return;
 		String filePath = file.getAbsolutePath();
 		if(!filePath.endsWith(".dots")) {

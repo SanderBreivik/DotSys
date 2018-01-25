@@ -6,14 +6,22 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -72,6 +80,15 @@ public class DotSystemController {
 
 	@FXML
 	private Label error;
+	
+	
+	// charts
+	@FXML private BarChart<String, Integer> barchartDots;
+	private Series<String, Integer> barchartSeries = new Series<>();
+	private Map<Person, Data<String, Integer>> personToData = new HashMap<>();
+	@FXML private PieChart piechartDots;
+	private ObservableList<PieChart.Data> pieData;
+	private Map<Person, PieChart.Data> personToPiechartData = new HashMap<>();
 
 
 	public void initialize() {
@@ -84,7 +101,7 @@ public class DotSystemController {
 		// Add listener to listview
 		listviewPersons.getSelectionModel().selectedItemProperty().addListener((observable, oldval, newval) -> {
 			if (newval != null)
-				updateLabel();
+				updateLabelsAndCharts();
 			
 			buttonRemove.setDisable(newval == null);
 		});
@@ -105,6 +122,55 @@ public class DotSystemController {
 			} else {
 				labelFilename.setText(newval.getName());
 			}
+		});
+		
+		// setup charts
+		barchartDots.getData().add(barchartSeries);
+		barchartDots.setLegendVisible(false);
+		this.pieData = piechartDots.getData();
+		// List change listener, see the docs
+		// https://docs.oracle.com/javase/8/javafx/api/javafx/collections/ListChangeListener.Change.html
+		list.addListener((ListChangeListener<Person>) c -> {
+			while (c.next()) {
+				if (c.wasPermutated()) {
+					for (int i = c.getFrom(); i < c.getTo(); i++) {
+						// permutate
+					}
+				} else if (c.wasUpdated()) {
+					// update item
+				} else {
+					for (Person p : c.getRemoved()) {
+						// p was removed
+						if (personToData.containsKey(p)) {
+							Data<String, Integer> d = personToData.get(p);
+							personToData.remove(p);
+							barchartSeries.getData().remove(d);
+						}
+						if (personToPiechartData.containsKey(p)) {
+							PieChart.Data pd = personToPiechartData.get(p);
+							personToPiechartData.remove(p);
+							pieData.remove(pd);
+						}
+					}
+					for (Person p : c.getAddedSubList()) {
+						// p was added
+						Data<String, Integer> d = new Data<>(p.getName(), p.getDots());
+						personToData.put(p, d);
+						barchartSeries.getData().add(d);
+						
+						PieChart.Data pd = new PieChart.Data(p.getName(), Math.max(p.getDots(), 0));
+						personToPiechartData.put(p, pd);
+						pieData.add(pd);
+					}
+				}
+			}
+			// sort series
+			barchartSeries.getData().sort(new Comparator<Data<String,Integer>>() {
+				@Override
+				public int compare(Data<String, Integer> o1, Data<String, Integer> o2) {
+					return o1.getXValue().compareTo(o2.getXValue());
+				}
+			});
 		});
 	}
 
@@ -150,7 +216,7 @@ public class DotSystemController {
 			setError("Velg en person først");
 		} else {
 			p.addDots(2);
-			updateLabel();
+			updateLabelsAndCharts();
 			save();
 		}
 	}
@@ -161,7 +227,7 @@ public class DotSystemController {
 			setError("Velg en person først");
 		} else {
 			p.addDots(-1);
-			updateLabel();
+			updateLabelsAndCharts();
 			save();
 		}
 	}
@@ -172,7 +238,7 @@ public class DotSystemController {
 			setError("Velg en person først");
 		} else {
 			p.addDots(-4);
-			updateLabel();
+			updateLabelsAndCharts();
 			save();
 		}
 	}
@@ -183,7 +249,7 @@ public class DotSystemController {
 			setError("Velg en person først");
 		} else {
 			p.addDots(1);
-			updateLabel();
+			updateLabelsAndCharts();
 			save();
 		}
 	} 
@@ -199,12 +265,12 @@ public class DotSystemController {
 				int minutes = Integer.parseInt(late.getText());
 				if (minutes >= 30) {
 					p.addDots(6);
-					updateLabel();
+					updateLabelsAndCharts();
 					late.clear();
 					save();
 				} else if (minutes < 30){
 					p.addDots(Math.floorDiv(minutes,5));
-					updateLabel();
+					updateLabelsAndCharts();
 					late.clear();
 					save();
 				} 
@@ -213,13 +279,22 @@ public class DotSystemController {
 		}
 	}
 
-	public void updateLabel() {
+	public void updateLabelsAndCharts() {
+		// TODO: Use observable value in Person
 		error.setText("");
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
 		if (p == null) {
 			dots.setText("");
 		} else {
 			dots.setText(dotsReadable(p));
+			if (personToData.containsKey(p)) {
+				Data<String, Integer> d = personToData.get(p);
+				d.setYValue(p.getDots());
+			}
+			if (personToPiechartData.containsKey(p)) {
+				PieChart.Data pd = personToPiechartData.get(p);
+				pd.setPieValue(Math.max(p.getDots(), 0));
+			}
 		}
 	}
 

@@ -62,7 +62,7 @@
       </HBox>
       <HBox VBox.vgrow="ALWAYS">
          <children>
-            <BarChart prefHeight="241.0" prefWidth="280.0" title="Prikker" HBox.hgrow="ALWAYS">
+            <BarChart fx:id="barchartDots" prefHeight="241.0" prefWidth="280.0" title="Prikker" HBox.hgrow="ALWAYS">
               <xAxis>
                 <CategoryAxis side="BOTTOM" />
               </xAxis>
@@ -70,7 +70,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </BarChart>
-            <PieChart prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" HBox.hgrow="ALWAYS" />
+            <PieChart fx:id="piechartDots" prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
    </children>

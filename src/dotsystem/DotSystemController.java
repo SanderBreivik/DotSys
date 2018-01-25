@@ -105,8 +105,7 @@ public class DotSystemController {
     		if (!isValidPerson(person)) {
     			setError("Velg en person først");
         } else {
-        		System.out.println("There..");
-        		person.addDots(4);
+        		person.addDots(2);
     			updateLabel();
         }
     		
@@ -144,16 +143,21 @@ public class DotSystemController {
 		if (!isValidPerson(person)) {
 			setError("Velg en person først");
     } else {
-		int minutes = Integer.parseInt(late.getText());
-		if (minutes >= 30) {
-			person.addDots(6);
-			updateLabel();
-			late.clear();
-		} else if (minutes < 30){
-			person.addDots(Math.floorDiv(minutes,5));
-			updateLabel();
-			late.clear();
-		} 
+    		if (late.getText().isEmpty()) {
+    			setError("Skriv inn antall minutter forsein");
+    		} else {
+    			int minutes = Integer.parseInt(late.getText());
+    			if (minutes >= 30) {
+    				person.addDots(6);
+    				updateLabel();
+    				late.clear();
+    			} else if (minutes < 30){
+    				person.addDots(Math.floorDiv(minutes,5));
+    				updateLabel();
+    				late.clear();
+    			} 
+    		}
+		
 	}
 	}
 	

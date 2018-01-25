@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+
 public class DotSystemController {
 	
 	String username; 
@@ -62,6 +63,11 @@ public class DotSystemController {
     @FXML
     private Label error;
     
+    
+    public void initialize() {
+    	comboBox.setItems(list.sorted());
+    }
+    
    
     @FXML
     void addPerson() {
@@ -71,7 +77,6 @@ public class DotSystemController {
     		System.out.println("Person:" + getPerson());
     		System.out.println();
     		list.addAll(getPerson());
-    		comboBox.setItems(list.sorted());
     		updateLabel();
     		user.clear();
     }
@@ -171,7 +176,6 @@ public class DotSystemController {
 		throw new IllegalArgumentException(description);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void load() {
 		FileChooser chooser = new FileChooser();
 	    chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
@@ -179,10 +183,26 @@ public class DotSystemController {
 		File file = chooser.showOpenDialog(null);
         if (file != null) {
             try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
-                List<Person> persons = (List<Person>) in.readObject();
-                list.setAll(persons);
-                comboBox.setItems(list.sorted());
-                System.out.println("Loaded: "+list);
+            	List<Person> importedPersons = new ArrayList<>();
+            	Object readObj = in.readObject();
+            	// Validate instance type of read object
+            	if (!(readObj instanceof List<?>)) {
+            		throw new Exception("Unrecognizeable object in savefile, expected List<?> but was "
+            				+ readObj.getClass().getSimpleName());
+            	}
+            	List<?> readList = (List<?>) readObj;
+            	for (Object o : readList) {
+            		// Validate instance type of object in read list
+            		if (!(o instanceof Person)) {
+            			System.err.println("Unknown object in imported list, expected Person but was "
+            					+ o.getClass().getSimpleName());
+            			continue;
+            		}
+            		Person p = (Person) o;
+            		importedPersons.add(p);
+            	}
+            	list.setAll(importedPersons);
+            	System.out.println("Loaded: "+list);
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
@@ -191,7 +211,9 @@ public class DotSystemController {
 	
 	public void save() {
 		FileChooser chooser = new FileChooser();
-		File file = chooser.showSaveDialog(null);
+		chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
+		File file = chooser.showSaveDialog(comboBox.getScene().getWindow());
+		if (file == null) return;
 		String filePath = file.getAbsolutePath();
 		if(!filePath.endsWith(".dots")) {
 		    file = new File(filePath + ".dots");

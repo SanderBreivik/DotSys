@@ -1,61 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dotsystem.DotSystemController">
-  <panes>
-    <TitledPane animated="false" prefHeight="408.0" prefWidth="600.0" text="Prikker">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+<VBox spacing="10.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dotsystem.DotSystemController">
+   <children>
+      <HBox alignment="CENTER_RIGHT" spacing="5.0">
+         <children>
+            <Label text="Endrer nå på fil: " />
+            <Label prefWidth="140.0" text="filnavn.dots" />
+            <Button mnemonicParsing="false" onAction="#save" text="Save" />
+            <Button mnemonicParsing="false" onAction="#load" text="Load" />
+         </children>
+      </HBox>
+      <Label text="Velg person:" />
+      <ComboBox fx:id="comboBox" onAction="#checkPerson" prefHeight="28.0" prefWidth="155.0" promptText="Velg person" />
+      <HBox spacing="5.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                <children>
-                  <Button fx:id="candy" layoutX="78.0" layoutY="139.0" mnemonicParsing="false" onAction="#broughtCandy" text="Godteri" />
-                  <Button fx:id="cake" layoutX="168.0" layoutY="139.0" mnemonicParsing="false" onAction="#broughtCake" text="Kake" />
-                  <Button fx:id="missed" layoutX="252.0" layoutY="139.0" mnemonicParsing="false" onAction="#missedLecture" text="Glipp av forelesning" />
-                  <Button fx:id="unprepared" layoutX="412.0" layoutY="139.0" mnemonicParsing="false" onAction="#unprepared" text="Uforberedt" />
-                  <TextField fx:id="late" layoutX="158.0" layoutY="191.0" promptText="Forsein?" />
-                  <Button fx:id="lateButton" layoutX="335.0" layoutY="191.0" mnemonicParsing="false" onAction="#late" text="Beregn" />
-                  <ComboBox fx:id="comboBox" layoutX="219.0" layoutY="69.0" onAction="#checkPerson" prefHeight="28.0" prefWidth="155.0" promptText="Velg person" />
-                  <Label fx:id="dots" alignment="CENTER" layoutX="153.0" layoutY="250.0" prefHeight="18.0" prefWidth="292.0" />
-                  <Button layoutX="464.0" layoutY="17.0" mnemonicParsing="false" onAction="#save" text="Save" />
-                  <Button layoutX="525.0" layoutY="17.0" mnemonicParsing="false" onAction="#load" text="Load" />
-                  <Label fx:id="error" alignment="CENTER" layoutX="149.0" layoutY="275.0" prefHeight="18.0" prefWidth="295.0" textFill="RED" />
-               </children></AnchorPane>
-      </content>
-    </TitledPane>
-    <TitledPane animated="false" text="Grafer">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <ListView prefHeight="150.0" prefWidth="200.0" />
+                  <TextField fx:id="user" onAction="#addPerson" promptText="Navn" />
+                  <Button fx:id="add" mnemonicParsing="false" onAction="#addPerson" text="Legg til ny person" />
+               </children>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS">
                <children>
-                  <BarChart layoutX="14.0" layoutY="51.0" prefHeight="241.0" prefWidth="280.0" title="Prikker">
-                    <xAxis>
-                      <CategoryAxis side="BOTTOM" />
-                    </xAxis>
-                    <yAxis>
-                      <NumberAxis side="LEFT" />
-                    </yAxis>
-                  </BarChart>
-                  <PieChart layoutX="321.0" layoutY="51.0" prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" />
-               </children></AnchorPane>
-      </content>
-    </TitledPane>
-    <TitledPane animated="false" text="Innstillinger">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <Button fx:id="add" layoutX="375.0" layoutY="40.0" mnemonicParsing="false" onAction="#addPerson" text="Legg til" />
-                  <TextField fx:id="user" layoutX="184.0" layoutY="43.0" onAction="#addPerson" promptText="Navn" />
-               </children></AnchorPane>
-      </content>
-    </TitledPane>
-  </panes>
-</Accordion>
+                  <HBox alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" spacing="5.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Button fx:id="candy" mnemonicParsing="false" onAction="#broughtCandy" text="Godteri" />
+                        <Button fx:id="cake" mnemonicParsing="false" onAction="#broughtCake" text="Kake" />
+                        <Button fx:id="missed" mnemonicParsing="false" onAction="#missedLecture" text="Glipp av forelesning" />
+                        <Button fx:id="unprepared" mnemonicParsing="false" onAction="#unprepared" text="Uforberedt" />
+                     </children>
+                  </HBox>
+                  <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER" spacing="5.0">
+                           <children>
+                              <TextField fx:id="late" promptText="Forsein?" />
+                              <Button fx:id="lateButton" mnemonicParsing="false" onAction="#late" text="Beregn" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="dots" alignment="CENTER" prefHeight="18.0" prefWidth="292.0" />
+                        <Label fx:id="error" alignment="CENTER" prefHeight="18.0" prefWidth="295.0" textFill="RED" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <BarChart prefHeight="241.0" prefWidth="280.0" title="Prikker" HBox.hgrow="ALWAYS">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </BarChart>
+            <PieChart prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</VBox>

@@ -7,15 +7,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -52,10 +54,16 @@ public class DotSystemController {
 	private Button lateButton;
 
 	@FXML
-	private Button add;
+	private Button buttonAdd;
+	
+	@FXML
+	private Button buttonRemove;
 
 	@FXML
 	private TextField user;
+	
+	@FXML
+	private Label labelFilename;
 
 	@FXML
 	private Label dots;
@@ -67,10 +75,24 @@ public class DotSystemController {
 	public void initialize() {
 		listviewPersons.setItems(list.sorted());
 		
+		buttonAdd.setDisable(true);
+		buttonRemove.setDisable(true);
+		lateButton.setDisable(true);
+		
 		// Add listener to listview
-		listviewPersons.getSelectionModel().selectedItemProperty().addListener((oldval, newval, observable) -> {
+		listviewPersons.getSelectionModel().selectedItemProperty().addListener((observable, oldval, newval) -> {
 			if (newval != null)
 				updateLabel();
+			
+			buttonRemove.setDisable(newval == null);
+		});
+		
+		user.textProperty().addListener((observable, oldval, newval) -> {
+			buttonAdd.setDisable("".equals(newval));
+		});
+		
+		late.textProperty().addListener((observable, oldval, newval) -> {
+			lateButton.setDisable("".equals(newval));
 		});
 	}
 
@@ -85,18 +107,34 @@ public class DotSystemController {
 		updateLabel();
 		user.clear();
 	}
-
-	public String dots(Person p) {
-		return p.getName() + " har " + p.getDots() + " prikker.";
-	}
-
-	public Boolean isValidPerson(Person p) {
-		return p != null;
+	
+	@FXML
+	void removePerson() {
+		Person p = listviewPersons.getSelectionModel().getSelectedItem();
+		if (p == null)
+			return;
+		
+		if (p.getDots() != 0) {
+			Alert sureBoutThat = new Alert(AlertType.CONFIRMATION);
+			sureBoutThat.setTitle("Sikker?");
+			sureBoutThat.setHeaderText(null);
+			sureBoutThat.setContentText(p.getName() + " har " + p.getDots() + " prikker, er du sikker på"
+					+ " at du vil fjerne denne personen?");
+			Optional<ButtonType> result = sureBoutThat.showAndWait();
+			if (result.get() != ButtonType.OK) {
+				// User cancelled
+				return;
+			}
+		}
+		
+		list.remove(p);
+		updateLabel();
+		user.clear();
 	}
 
 	public void missedLecture(){
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
-		if (!isValidPerson(p)) {
+		if (p == null) {
 			setError("Velg en person først");
 		} else {
 			p.addDots(2);
@@ -106,7 +144,7 @@ public class DotSystemController {
 
 	public void broughtCandy() {
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
-		if (!isValidPerson(p)) {
+		if (p == null) {
 			setError("Velg en person først");
 		} else {
 			p.addDots(-1);
@@ -116,7 +154,7 @@ public class DotSystemController {
 
 	public void broughtCake() {
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
-		if (!isValidPerson(p)) {
+		if (p == null) {
 			setError("Velg en person først");
 		} else {
 			p.addDots(-4);
@@ -126,7 +164,7 @@ public class DotSystemController {
 
 	public void unprepared() {
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
-		if (!isValidPerson(p)) {
+		if (p == null) {
 			setError("Velg en person først");
 		} else {
 			p.addDots(1);
@@ -136,7 +174,7 @@ public class DotSystemController {
 
 	public void late() {
 		Person p = this.listviewPersons.getSelectionModel().getSelectedItem();
-		if (!isValidPerson(p)) {
+		if (p == null) {
 			setError("Velg en person først");
 		} else {
 			if (late.getText().isEmpty()) {
@@ -163,8 +201,12 @@ public class DotSystemController {
 		if (p == null) {
 			dots.setText("");
 		} else {
-			dots.setText(String.valueOf(p.getDots()));
+			dots.setText(dotsReadable(p));
 		}
+	}
+
+	public String dotsReadable(Person p) {
+		return p.getName() + " har " + p.getDots() + " prikker.";
 	}
 
 	public void setError(String description) throws IllegalArgumentException{

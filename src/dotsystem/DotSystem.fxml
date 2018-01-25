@@ -17,7 +17,7 @@
       <HBox alignment="CENTER_RIGHT" spacing="5.0">
          <children>
             <Label text="Endrer nå på fil: " />
-            <Label prefWidth="140.0" text="filnavn.dots" />
+            <Label fx:id="labelFilename" prefWidth="140.0" text="filnavn.dots" />
             <Button mnemonicParsing="false" onAction="#save" text="Save" />
             <Button mnemonicParsing="false" onAction="#load" text="Load" />
          </children>
@@ -29,7 +29,8 @@
                <children>
                   <ListView fx:id="listviewPersons" prefHeight="150.0" prefWidth="200.0" />
                   <TextField fx:id="user" onAction="#addPerson" promptText="Navn" />
-                  <Button fx:id="add" mnemonicParsing="false" onAction="#addPerson" text="Legg til ny person" />
+                  <Button fx:id="buttonAdd" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addPerson" text="Legg til ny person" />
+                  <Button fx:id="buttonRemove" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#removePerson" text="Fjern person" />
                </children>
             </VBox>
             <VBox HBox.hgrow="ALWAYS">

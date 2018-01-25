@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,8 +26,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 
 public class DotSystemController {
-
-	String username;
+	
+	private ObjectProperty<File> fileObs = new SimpleObjectProperty<>(null);
 	
 	@FXML
 	ListView<Person> listviewPersons;
@@ -94,18 +96,29 @@ public class DotSystemController {
 		late.textProperty().addListener((observable, oldval, newval) -> {
 			lateButton.setDisable("".equals(newval));
 		});
+		
+		// update labelfilename
+		labelFilename.setText("N/A");
+		fileObs.addListener((observable, oldval, newval) -> {
+			if (newval == null) {
+				labelFilename.setText("N/A");
+			} else {
+				labelFilename.setText(newval.getName());
+			}
+		});
 	}
 
 
 	@FXML
 	void addPerson() {
-		username = user.getText().substring(0, 1).toUpperCase() + user.getText().substring(1).toLowerCase();
+		String username = user.getText().substring(0, 1).toUpperCase() + user.getText().substring(1).toLowerCase();
 		Person p = new Person(username);
 		System.out.println("Person:" + p);
 		System.out.println();
 		list.add(p);
-		updateLabel();
 		user.clear();
+		listviewPersons.getSelectionModel().select(p);
+		save();
 	}
 	
 	@FXML
@@ -128,8 +141,7 @@ public class DotSystemController {
 		}
 		
 		list.remove(p);
-		updateLabel();
-		user.clear();
+		save();
 	}
 
 	public void missedLecture(){
@@ -139,6 +151,7 @@ public class DotSystemController {
 		} else {
 			p.addDots(2);
 			updateLabel();
+			save();
 		}
 	}
 
@@ -149,6 +162,7 @@ public class DotSystemController {
 		} else {
 			p.addDots(-1);
 			updateLabel();
+			save();
 		}
 	}
 
@@ -159,6 +173,7 @@ public class DotSystemController {
 		} else {
 			p.addDots(-4);
 			updateLabel();
+			save();
 		}
 	}
 
@@ -169,6 +184,7 @@ public class DotSystemController {
 		} else {
 			p.addDots(1);
 			updateLabel();
+			save();
 		}
 	} 
 
@@ -185,10 +201,12 @@ public class DotSystemController {
 					p.addDots(6);
 					updateLabel();
 					late.clear();
+					save();
 				} else if (minutes < 30){
 					p.addDots(Math.floorDiv(minutes,5));
 					updateLabel();
 					late.clear();
+					save();
 				} 
 			}
 
@@ -213,6 +231,11 @@ public class DotSystemController {
 		error.setText(description);
 		// TODO: Shouldn't throw RuntimeException, or uncaught exception
 		throw new IllegalArgumentException(description);
+	}
+	
+	public void newFile() {
+		fileObs.setValue(null);
+		list.clear();
 	}
 
 	public void load() {
@@ -246,13 +269,21 @@ public class DotSystemController {
 				list.setAll(importedPersons);
 				listviewPersons.getSelectionModel().select(0);
 				System.out.println("Loaded: "+list);
+				fileObs.setValue(file);
 			} catch (Exception exc) {
 				exc.printStackTrace();
 			}
 		}
 	}
-
+	
 	public void save() {
+		File file = fileObs.getValue();
+		if (file != null) {
+			saveTo(file);
+		}
+	}
+
+	public void saveAs() {
 		FileChooser chooser = new FileChooser();
 		chooser.getExtensionFilters().add(new ExtensionFilter("Dot files", "*.dots"));
 		File file = chooser.showSaveDialog(listviewPersons.getScene().getWindow());
@@ -261,10 +292,15 @@ public class DotSystemController {
 		if(!filePath.endsWith(".dots")) {
 			file = new File(filePath + ".dots");
 		}
+		saveTo(file);
+	}
+	
+	private void saveTo(File file) {
 		if (file != null) {
 			try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
 				System.out.println("Saved: "+list); 
 				out.writeObject(new ArrayList<>(list));
+				fileObs.setValue(file);
 			} catch (Exception exc) {
 				exc.printStackTrace();
 			}

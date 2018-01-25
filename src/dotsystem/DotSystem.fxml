@@ -18,8 +18,9 @@
          <children>
             <Label text="Endrer nå på fil: " />
             <Label fx:id="labelFilename" prefWidth="140.0" text="filnavn.dots" />
-            <Button mnemonicParsing="false" onAction="#save" text="Save" />
-            <Button mnemonicParsing="false" onAction="#load" text="Load" />
+            <Button mnemonicParsing="false" onAction="#newFile" text="Ny" />
+            <Button mnemonicParsing="false" onAction="#saveAs" text="Lagre som" />
+            <Button mnemonicParsing="false" onAction="#load" text="Åpne fil" />
          </children>
       </HBox>
       <Label text="Velg person:" />

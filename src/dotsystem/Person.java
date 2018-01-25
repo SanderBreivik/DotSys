@@ -3,7 +3,7 @@ package dotsystem;
 import java.io.Serializable;
 
 public class Person implements Serializable{
-	
+
 	/**
 	 * 
 	 */
@@ -14,7 +14,7 @@ public class Person implements Serializable{
 	public Person(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -30,10 +30,9 @@ public class Person implements Serializable{
 	public void addDots(int dots) {
 		this.dots += dots;
 	}	
-	
+
 	public String toString() {
 		return name;
 	}
 }
 
-	

@@ -6,7 +6,6 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
@@ -18,20 +17,21 @@
       <HBox alignment="CENTER_RIGHT" spacing="5.0">
          <children>
             <Label text="Endrer nå på fil: " />
-            <Label prefWidth="140.0" text="filnavn.dots" />
-            <Button mnemonicParsing="false" onAction="#save" text="Save" />
-            <Button mnemonicParsing="false" onAction="#load" text="Load" />
+            <Label fx:id="labelFilename" prefWidth="140.0" text="filnavn.dots" />
+            <Button mnemonicParsing="false" onAction="#newFile" text="Ny" />
+            <Button mnemonicParsing="false" onAction="#saveAs" text="Lagre som" />
+            <Button mnemonicParsing="false" onAction="#load" text="Åpne fil" />
          </children>
       </HBox>
       <Label text="Velg person:" />
-      <ComboBox fx:id="comboBox" onAction="#checkPerson" prefHeight="28.0" prefWidth="155.0" promptText="Velg person" />
       <HBox spacing="5.0" VBox.vgrow="ALWAYS">
          <children>
             <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                <children>
-                  <ListView prefHeight="150.0" prefWidth="200.0" />
+                  <ListView fx:id="listviewPersons" prefHeight="150.0" prefWidth="200.0" />
                   <TextField fx:id="user" onAction="#addPerson" promptText="Navn" />
-                  <Button fx:id="add" mnemonicParsing="false" onAction="#addPerson" text="Legg til ny person" />
+                  <Button fx:id="buttonAdd" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addPerson" text="Legg til ny person" />
+                  <Button fx:id="buttonRemove" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#removePerson" text="Fjern person" />
                </children>
             </VBox>
             <VBox HBox.hgrow="ALWAYS">
@@ -62,7 +62,7 @@
       </HBox>
       <HBox VBox.vgrow="ALWAYS">
          <children>
-            <BarChart prefHeight="241.0" prefWidth="280.0" title="Prikker" HBox.hgrow="ALWAYS">
+            <BarChart fx:id="barchartDots" prefHeight="241.0" prefWidth="280.0" title="Prikker" HBox.hgrow="ALWAYS">
               <xAxis>
                 <CategoryAxis side="BOTTOM" />
               </xAxis>
@@ -70,7 +70,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </BarChart>
-            <PieChart prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" HBox.hgrow="ALWAYS" />
+            <PieChart fx:id="piechartDots" prefHeight="216.0" prefWidth="254.0" title="Hvem tar kaka?" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
    </children>
